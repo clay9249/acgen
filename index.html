@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Animus 2.0</title>
+    <!-- 
+      在此更換您的網頁 ICON (PNG格式)
+      只需將下面 href 的內容替換為您的圖片路徑即可
+    -->
+    <link rel="icon" type="image/png" href="https://www.freepnglogos.com/uploads/assassins-creed-logo-png/meaning-assassins-creed-logo-and-symbol-history-and-0.png">
+    
+    <!-- 引入 Tailwind CSS 進行現代化佈局 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Google Fonts：結合刺客文藝復興古典美與科技感 -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Share Tech Mono', 'Cinzel', monospace, sans-serif;
+            background: radial-gradient(circle, #eef3f7 0%, #d8e2eb 100%);
+            color: #2c3e50;
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Animus 網格背景 */
+        body::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(9, 242, 198, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(9, 242, 198, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* 刺客教條經典亮白與紅藍配色線條 */
+        .animus-accent {
+            border-color: #09f2c6;
+            box-shadow: 0 0 10px rgba(9, 242, 198, 0.3);
+        }
+
+        .animus-red {
+            color: #b81d24;
+        }
+
+        .animus-btn {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: #ffffff;
+            border-left: 4px solid #09f2c6;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .animus-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(9, 242, 198, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .animus-btn:hover::after {
+            left: 100%;
+        }
+
+        .animus-btn:hover {
+            border-left: 4px solid #b81d24;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(9, 242, 198, 0.2);
+        }
+
+        .animus-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            border-left: 5px solid #1e293b;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+        }
+
+        .cinzel-font {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* 解密閃爍動畫 */
+        @keyframes decrypt {
+            0% { opacity: 0.3; transform: scale(0.95); filter: blur(2px); }
+            50% { opacity: 0.8; filter: blur(0px); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .decrypting {
+            animation: decrypt 0.1s infinite;
+            color: #b81d24 !important;
+        }
+
+        /* 經典刺客紅亮條 */
+        .desync-bar {
+            background: repeating-linear-gradient(
+                45deg,
+                #b81d24,
+                #b81d24 10px,
+                #a0141a 10px,
+                #a0141a 20px
+            );
+        }
+
+        /* 自訂慢速旋轉動畫（用於美化齒輪） */
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+            animation: spin-slow 10s linear infinite;
+        }
+
+        /* 隱藏滾動條但保留滾動功能 (用於手機端橫向導覽選單) */
+        .scrollbar-none::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-none {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* 捲軸美化 */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="p-3 sm:p-6 md:p-8 flex flex-col min-h-screen">
+
+    <!-- 頂部 HUD 裝飾條 -->
+    <header class="relative z-10 max-w-7xl w-full mx-auto mb-4 sm:mb-6 flex flex-col md:flex-row justify-between items-center border-b border-slate-300 pb-4">
+        <div class="flex items-center space-x-3 sm:space-x-4 mb-3 md:mb-0">
+            <!-- 刺客標誌 SVG -->
+            <svg class="w-8 h-8 sm:w-10 sm:h-10 text-slate-800" viewBox="0 0 100 100" fill="currentColor">
+                <path d="M50 2C35 25 15 55 15 65C15 80 30 95 50 95C70 95 85 80 85 65C85 55 65 25 50 2ZM50 82C40 82 32 74 32 64C32 55 42 42 50 31C58 42 68 55 68 64C68 74 60 82 50 82Z"/>
+                <path d="M50 45L40 60H60L50 45Z" fill="#b81d24"/>
+            </svg>
+            <div>
+                <h1 class="cinzel-font text-lg sm:text-2xl md:text-3xl font-black tracking-widest text-slate-800 flex items-center">
+                    ANIMUS <span class="animus-red ml-1.5">2.0</span>
+                </h1>
+                <p class="text-[9px] sm:text-xs uppercase tracking-wider text-slate-500">Subject 17 - Memory Synchronization System</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-2 text-[10px] sm:text-xs text-slate-600 bg-white/60 px-3 py-1.5 rounded border border-slate-300 shadow-sm">
+            <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="tracking-widest">DNA LINK ESTABLISHED</span>
+        </div>
+    </header>
+
+    <!-- 主要工作區域 -->
+    <main class="relative z-10 max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 flex-grow">
+        
+        <!-- 左側子頁控制面板 (3 Cols) -->
+        <div class="lg:col-span-3 flex flex-col space-y-4">
+            <div class="animus-panel p-3 sm:p-4 rounded-lg flex flex-col space-y-3 sm:space-y-4">
+                <div class="border-b border-slate-200 pb-2 flex justify-between items-center">
+                    <h2 class="cinzel-font text-xs sm:text-sm font-bold tracking-widest text-slate-600 uppercase">Memory Sectors / 記憶區段</h2>
+                    <span class="text-[10px] text-slate-400 font-mono hidden sm:inline">SWIPE TO NAVIGATE</span>
+                </div>
+                
+                <!-- 子頁按鈕容器：調整為橫向排列的方塊 ICON，支援行動端滑動 -->
+                <div id="subpages-container" class="flex flex-row flex-nowrap overflow-x-auto gap-2 py-1 scrollbar-none snap-x snap-mandatory">
+                    <!-- 子頁 1: 音樂基因隨機序列 (將在 JS 中動態連同自訂子頁統一渲染，此處先留空由 JS 填充) -->
+                </div>
+
+                <!-- 動態新增子頁功能區 -->
+                <div class="pt-3 border-t border-slate-200">
+                    <div class="flex space-x-1.5">
+                        <input type="text" id="new-page-title" placeholder="命名新記憶群..." class="flex-grow text-xs px-2.5 py-2 bg-white/80 border border-slate-300 rounded focus:outline-none focus:border-slate-800 text-slate-700">
+                        <button onclick="addNewPage()" class="animus-btn px-3 py-1.5 rounded text-xs font-bold tracking-wider flex items-center justify-center">
+                            + 新增
+                        </button>
+                    </div>
+                    <p class="text-[9px] sm:text-[10px] text-slate-500 mt-1.5 italic">※ 新增的子頁將按「1 2 3...」數字順序解鎖</p>
+                </div>
+            </div>
+
+            <!-- 刺客格言美學卡：修改響應式，在電腦大螢幕（lg）顯示 -->
+            <div class="animus-panel p-4 rounded-lg hidden lg:block bg-gradient-to-br from-slate-900 to-slate-800 text-slate-300 border-l-4 border-red-700">
+                <p class="cinzel-font text-xs italic tracking-wider leading-relaxed">
+                    "Nulla est veritas, licet omnia."
+                </p>
+                <p class="text-[10px] text-slate-400 mt-2 text-right">— 萬物皆虛，萬事皆允</p>
+            </div>
+        </div>
+
+        <!-- 右側子頁主視窗 (9 Cols) -->
+        <div class="lg:col-span-9 flex flex-col space-y-6">
+
+            <!-- ================= 子頁一: DNA 音律解碼器 (Music / Base Generator) ================= -->
+            <div id="content-music" class="tab-content space-y-4 sm:space-y-6">
+                
+                <!-- 頂部橫幅 -->
+                <div class="desync-bar text-white px-4 sm:px-6 py-3 sm:py-4 rounded-lg shadow-md flex justify-between items-center">
+                    <div>
+                        <h3 class="cinzel-font text-base sm:text-xl font-bold tracking-widest">SEQUENCE SYNCHRONIZER 01</h3>
+                        <p class="text-[9px] sm:text-xs uppercase tracking-widest opacity-80 text-cyan-200">基本隨機基因重組序列</p>
+                    </div>
+                    <svg class="w-10 h-10 sm:w-12 sm:h-12 opacity-30" viewBox="0 0 100 100" fill="currentColor">
+                        <path d="M50 2C35 25 15 55 15 65C15 80 30 95 50 95C70 95 85 80 85 65C85 55 65 25 50 2Z"/>
+                    </svg>
+                </div>
+
+                <!-- 1. 英文字母抽選區 -->
+                <div class="animus-panel p-4 sm:p-6 rounded-lg relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-3 text-[9px] sm:text-xs font-mono text-slate-300 select-none">SEQ_01 // ALPHA</div>
+                    <h4 class="cinzel-font text-xs sm:text-sm font-bold tracking-wider text-slate-700 mb-4 border-b border-slate-200 pb-2 flex items-center">
+                        <span class="inline-block w-2 h-2 bg-[#09f2c6] mr-2"></span> 英文字母隨機解密 (A-Z)
+                    </h4>
+                    <div class="flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
+                        <div class="w-full md:w-2/3 bg-slate-900 text-white rounded-lg p-4 sm:p-6 flex flex-col items-center justify-center min-h-[110px] sm:min-h-[140px] relative border border-slate-700">
+                            <span class="text-[9px] sm:text-xs text-[#09f2c6] absolute top-2 left-3 font-mono">ANIMUS DECRYPTED OUTPUT</span>
+                            <div id="letter-display" class="cinzel-font text-4xl sm:text-5xl md:text-6xl font-black tracking-widest text-slate-100 transition-all duration-150">A</div>
+                        </div>
+                        <div class="w-full md:w-1/3">
+                            <button onclick="spinLetter()" class="animus-btn w-full py-3.5 px-6 rounded-lg font-bold uppercase tracking-widest flex items-center justify-center space-x-2">
+                                <span>啟動同步解密</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. 數字範圍抽選區 -->
+                <div class="animus-panel p-4 sm:p-6 rounded-lg relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-3 text-[9px] sm:text-xs font-mono text-slate-300 select-none">SEQ_02 // NUMERIC</div>
+                    
+                    <div class="flex justify-between items-center mb-4 border-b border-slate-200 pb-2">
+                        <h4 class="cinzel-font text-xs sm:text-sm font-bold tracking-wider text-slate-700 flex items-center">
+                            <span class="inline-block w-2 h-2 bg-red-600 mr-2"></span> 數字隨機同步
+                        </h4>
+                        <!-- 齒輪隱藏設定開關 -->
+                        <button type="button" onclick="toggleNumberSettings()" class="text-slate-500 hover:text-slate-800 transition-all p-2 rounded-full hover:bg-slate-200/50 focus:outline-none flex items-center justify-center" title="進階參數調整">
+                            <svg class="w-5 h-5 animate-spin-slow text-slate-600 hover:text-[#09f2c6]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- 隱藏的數字設定區 -->
+                    <div id="num-settings-panel" class="hidden mb-4 bg-slate-100 p-4 rounded border border-slate-200 transition-all duration-300">
+                        <p class="text-[10px] sm:text-xs uppercase tracking-wider font-bold text-slate-600 mb-2">數字演算法校準</p>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] sm:text-xs text-slate-500 mb-1">最小值 (Min)</label>
+                                <input type="number" id="num-min" value="1" class="w-full text-sm px-3 py-2 border border-slate-300 rounded focus:ring-1 focus:ring-slate-700 bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] sm:text-xs text-slate-500 mb-1">最大值 (Max)</label>
+                                <input type="number" id="num-max" value="100" class="w-full text-sm px-3 py-2 border border-slate-300 rounded focus:ring-1 focus:ring-slate-700 bg-white">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
+                        <div class="w-full md:w-2/3 bg-slate-900 text-white rounded-lg p-4 sm:p-6 flex flex-col items-center justify-center min-h-[110px] sm:min-h-[140px] relative border border-slate-700">
+                            <span class="text-[9px] sm:text-xs text-red-400 absolute top-2 left-3 font-mono">ANIMUS RANDOMIZER OUTPUT</span>
+                            <div id="number-display" class="cinzel-font text-4xl sm:text-5xl md:text-6xl font-black tracking-widest text-slate-100 transition-all duration-150">--</div>
+                        </div>
+                        <div class="w-full md:w-1/3">
+                            <button onclick="spinNumber()" class="animus-btn w-full py-3.5 px-6 rounded-lg font-bold uppercase tracking-widest flex items-center justify-center space-x-2">
+                                <span>產生隨機序列</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. ALL / SINGLE / MIX 協定抽選區 -->
+                <div class="animus-panel p-4 sm:p-6 rounded-lg relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-3 text-[9px] sm:text-xs font-mono text-slate-300 select-none">SEQ_03 // PROTOCOL</div>
+                    <h4 class="cinzel-font text-xs sm:text-sm font-bold tracking-wider text-slate-700 mb-4 border-b border-slate-200 pb-2 flex items-center">
+                        <span class="inline-block w-2 h-2 bg-[#09f2c6] mr-2"></span> 戰術協定抽選 (ALL / SINGLE / MIX)
+                    </h4>
+                    
+                    <div class="flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
+                        <!-- 選擇器區塊 -->
+                        <div class="w-full md:w-2/3 grid grid-cols-3 gap-1.5 bg-slate-100 p-1.5 rounded-lg">
+                            <button onclick="setProtocol('ALL')" id="proto-ALL" class="proto-btn py-2.5 px-1 sm:px-2 rounded font-bold text-xs sm:text-sm tracking-widest transition-all bg-slate-800 text-white border-b-2 border-red-500">
+                                ALL <span class="block text-[8px] sm:text-[9px] font-mono opacity-80">(全局)</span>
+                            </button>
+                            <button onclick="setProtocol('SINGLE')" id="proto-SINGLE" class="proto-btn py-2.5 px-1 sm:px-2 rounded font-bold text-xs sm:text-sm tracking-widest transition-all bg-white hover:bg-slate-200 text-slate-700">
+                                SINGLE <span class="block text-[8px] sm:text-[9px] font-mono opacity-60">(單體)</span>
+                            </button>
+                            <button onclick="setProtocol('MIX')" id="proto-MIX" class="proto-btn py-2.5 px-1 sm:px-2 rounded font-bold text-xs sm:text-sm tracking-widest transition-all bg-white hover:bg-slate-200 text-slate-700">
+                                MIX <span class="block text-[8px] sm:text-[9px] font-mono opacity-60">(重混)</span>
+                            </button>
+                        </div>
+
+                        <!-- 獨立觸發按鈕與顯示 -->
+                        <div class="w-full md:w-1/3 space-y-3">
+                            <button onclick="drawProtocol()" class="animus-btn w-full py-3 px-6 rounded-lg font-bold uppercase tracking-widest text-center text-xs sm:text-sm">
+                                隨機啟動協定
+                            </button>
+                            <div class="bg-slate-900 text-[#09f2c6] text-center font-bold text-sm sm:text-base py-2 rounded border border-slate-800 tracking-wider">
+                                已選定: <span id="current-protocol-display" class="font-black text-white">ALL</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ================= 動態產生的自訂子頁模板存放區 ================= -->
+            <div id="dynamic-tabs-container">
+                <!-- 這裡會動態注入自訂子頁的 DOM 內容 -->
+            </div>
+
+            <!-- 手機專屬刺客格言美學卡：只在手機/平板小螢幕（block lg:hidden）顯示，置於頁面底部 -->
+            <div class="animus-panel p-4 rounded-lg block lg:hidden bg-gradient-to-br from-slate-900 to-slate-800 text-slate-300 border-l-4 border-red-700 text-center mt-4">
+                <p class="cinzel-font text-sm italic tracking-widest leading-relaxed">
+                    "Nulla est veritas, licet omnia."
+                </p>
+                <p class="text-[11px] text-slate-400 mt-1">— 萬物皆虛，萬事皆允</p>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- 頁尾 Animus 提示文字 -->
+    <footer class="relative z-10 max-w-7xl w-full mx-auto mt-6 text-center border-t border-slate-300 pt-4 pb-6 px-4">
+        <p class="text-[9px] sm:text-[11px] uppercase tracking-widest text-slate-500 leading-relaxed">
+            Abstergo Industries © 2026. All memories initialized via Assassin DNA sequences.
+        </p>
+    </footer>
+
+    <!-- JavaScript 邏輯控制 -->
+    <script>
+        // 核心狀態管理
+        const state = {
+            activeTab: 'music',
+            customPages: [], // 存放所有動態自訂子頁數據
+            currentProtocol: 'ALL', // 第一頁協定
+            romanNumerals: ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
+        };
+
+        // DOM 載入完畢初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            // 初始化內建的第二個子頁（用餐選擇，立即可用）
+            addDefaultCustomPage();
+        });
+
+        // ------------------ 導覽切換系統 ------------------
+        function switchTab(tabId) {
+            state.activeTab = tabId;
+            
+            // 隱藏所有子頁
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.add('hidden');
+            });
+
+            // 顯示目前子頁
+            const targetContent = document.getElementById(`content-${tabId}`);
+            if (targetContent) {
+                targetContent.classList.remove('hidden');
+            }
+
+            // 更新選中按鈕的外觀樣式 (橫向極簡圓角按鈕樣式)
+            const buttons = document.querySelectorAll('#subpages-container button');
+            buttons.forEach(btn => {
+                const btnId = btn.id;
+                if (btnId === `tab-${tabId}`) {
+                    // 啟用樣式：高科技黑底、霓虹藍下底線
+                    btn.className = "w-12 h-12 rounded-lg flex-shrink-0 flex items-center justify-center transition-all duration-300 bg-slate-800 text-[#09f2c6] border-b-4 border-[#09f2c6] shadow-md shadow-cyan-500/20 snap-center";
+                } else if (btnId.startsWith('tab-')) {
+                    // 未啟用樣式：白底灰底線
+                    btn.className = "w-12 h-12 rounded-lg flex-shrink-0 flex items-center justify-center transition-all duration-300 bg-white hover:bg-slate-200 text-slate-700 border-b-4 border-slate-300 snap-center";
+                }
+            });
+        }
+
+        // ------------------ 音樂與基礎 DNA 抽選子頁邏輯 ------------------
+        
+        // 1. 字母隨機抽取
+        function spinLetter() {
+            const letterDisplay = document.getElementById('letter-display');
+            letterDisplay.classList.add('decrypting');
+            
+            const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            let duration = 800; // 滾動時間 0.8秒
+            let interval = setInterval(() => {
+                const randomIndex = Math.floor(Math.random() * alphabet.length);
+                letterDisplay.textContent = alphabet[randomIndex];
+            }, 50);
+
+            setTimeout(() => {
+                clearInterval(interval);
+                letterDisplay.classList.remove('decrypting');
+                // 最終決定字母
+                const finalIndex = Math.floor(Math.random() * alphabet.length);
+                letterDisplay.textContent = alphabet[finalIndex];
+            }, duration);
+        }
+
+        // 2. 數字隱藏設定區切換 (高防禦邏輯修復版)
+        function toggleNumberSettings() {
+            const panel = document.getElementById('num-settings-panel');
+            if (panel) {
+                if (panel.classList.contains('hidden')) {
+                    panel.classList.remove('hidden');
+                } else {
+                    panel.classList.add('hidden');
+                }
+            }
+        }
+
+        // 3. 數字隨機抽取
+        function spinNumber() {
+            const numDisplay = document.getElementById('number-display');
+            const min = parseInt(document.getElementById('num-min').value) || 1;
+            const max = parseInt(document.getElementById('num-max').value) || 100;
+
+            if (min >= max) {
+                alert("錯誤：最小值不能大於或等於最大值！");
+                return;
+            }
+
+            numDisplay.classList.add('decrypting');
+            let duration = 800;
+            let interval = setInterval(() => {
+                const randomVal = Math.floor(Math.random() * (max - min + 1)) + min;
+                numDisplay.textContent = randomVal;
+            }, 50);
+
+            setTimeout(() => {
+                clearInterval(interval);
+                numDisplay.classList.remove('decrypting');
+                const finalVal = Math.floor(Math.random() * (max - min + 1)) + min;
+                numDisplay.textContent = finalVal;
+            }, duration);
+        }
+
+        // 4. ALL / SINGLE / MIX 協定設定
+        function setProtocol(proto) {
+            state.currentProtocol = proto;
+            
+            // 重置按鈕樣式
+            document.querySelectorAll('.proto-btn').forEach(btn => {
+                btn.className = "proto-btn py-2.5 px-1 sm:px-2 rounded font-bold text-xs sm:text-sm tracking-widest transition-all bg-white hover:bg-slate-200 text-slate-700";
+            });
+
+            // 點選的高亮樣式
+            const activeBtn = document.getElementById(`proto-${proto}`);
+            if (activeBtn) {
+                activeBtn.className = "proto-btn py-2.5 px-1 sm:px-2 rounded font-bold text-xs sm:text-sm tracking-widest transition-all bg-slate-800 text-white border-b-2 border-red-500";
+            }
+        }
+
+        // 5. ALL / SINGLE / MIX 獨立按鈕抽選
+        function drawProtocol() {
+            const protocols = ['ALL', 'SINGLE', 'MIX'];
+            const display = document.getElementById('current-protocol-display');
+            display.classList.add('decrypting');
+            
+            let duration = 600;
+            let interval = setInterval(() => {
+                const randomProto = protocols[Math.floor(Math.random() * protocols.length)];
+                display.textContent = randomProto;
+            }, 60);
+
+            setTimeout(() => {
+                clearInterval(interval);
+                display.classList.remove('decrypting');
+                const finalProto = protocols[Math.floor(Math.random() * protocols.length)];
+                display.textContent = finalProto;
+                // 同步狀態
+                setProtocol(finalProto);
+            }, duration);
+        }
+
+
+        // =========================================================================
+        // ======================== 自訂子頁動態管理系統 =============================
+        // =========================================================================
+
+        // 預設載入一個用餐相關（佛羅倫斯餐飲記憶）自訂抽選器頁面
+        function addDefaultCustomPage() {
+            const initialPage = {
+                id: 'custom-' + Date.now(),
+                title: '佛羅倫斯餐飲選擇器', // 預設用餐頁面
+                categories: ['義式主食', '經典披薩', '文藝復興甜點', '佐餐特調'],
+                items: [
+                    { name: '托斯卡尼炭烤大牛排 (Bistecca)', categories: ['義式主食'] },
+                    { name: '瑪格麗特羅勒披薩 (Margherita)', categories: ['經典披薩'] },
+                    { name: '兄弟會祕製千層麵', categories: ['義式主食'] },
+                    { name: '西西里島起司捲 (Cannoli)', categories: ['文藝復興甜點'] },
+                    { name: '香草提拉米蘇 (Tiramisu)', categories: ['文藝復興甜點'] },
+                    { name: '文藝復興熱紅酒', categories: ['佐餐特調'] },
+                    { name: '阿諾河畔起司帕尼尼', categories: ['義式主食'] }
+                ]
+            };
+            registerNewTabInState(initialPage);
+        }
+
+        // 藉由使用者手動新增自訂子頁
+        function addNewPage() {
+            const titleInput = document.getElementById('new-page-title');
+            const title = titleInput.value.trim();
+            if (!title) {
+                alert("請輸入自訂子頁的記憶名稱！");
+                return;
+            }
+
+            const newPage = {
+                id: 'custom-' + Date.now(),
+                title: title,
+                categories: ['一般'],
+                items: []
+            };
+
+            registerNewTabInState(newPage);
+            titleInput.value = ''; // 清空輸入框
+            
+            // 自動切換到新子頁
+            switchTab(newPage.id);
+        }
+
+        // 將子頁加入系統並重新渲染 DOM 節點
+        function registerNewTabInState(pageObj) {
+            state.customPages.push(pageObj);
+            
+            // 1. 在左側清單中渲染按鈕
+            renderLeftTabs();
+            // 2. 渲染右側子頁視窗的 DOM 區塊
+            renderRightTabContents();
+        }
+
+        // 1. 渲染左側子頁選單按鈕 (橫向 ICON 排列，手機滑動優化)
+        function renderLeftTabs() {
+            const container = document.getElementById('subpages-container');
+            
+            // A. 音樂 (第一個固定)
+            const isMusicActive = state.activeTab === 'music';
+            let html = `
+                <button onclick="switchTab('music')" id="tab-music" title="DNA 音律解碼器" class="w-12 h-12 rounded-lg flex-shrink-0 flex items-center justify-center transition-all duration-300 snap-center ${isMusicActive ? 'bg-slate-800 text-[#09f2c6] border-b-4 border-[#09f2c6] shadow-md shadow-cyan-500/20' : 'bg-white hover:bg-slate-200 text-slate-700 border-b-4 border-slate-300'}">
+                    <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+                    </svg>
+                </button>
+            `;
+
+            // B. 渲染所有自訂子頁 (不顯示名稱，第2個用餐，隨後為1, 2, 3...)
+            state.customPages.forEach((page, index) => {
+                const isActive = state.activeTab === page.id;
+                let iconContent = '';
+
+                if (index === 0) {
+                    // 第二個：用餐相關 ICON (義大利餐飲風：酒杯與叉勺整合)
+                    iconContent = `
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M6 3v5c0 1.5 2 2.5 4 2.5s4-1 4-2.5V3M18 3v13h2" />
+                        </svg>
+                    `;
+                } else {
+                    // 之後的才是數字：1, 2, 3... (以 Animus 古典風格顯示，index 為數字)
+                    iconContent = `<span class="cinzel-font text-base font-black tracking-widest">${index}</span>`;
+                }
+                
+                html += `
+                    <div class="relative group flex-shrink-0 snap-center">
+                        <button onclick="switchTab('${page.id}')" id="tab-${page.id}" title="${page.title}" class="w-12 h-12 rounded-lg flex items-center justify-center transition-all duration-300 ${isActive ? 'bg-slate-800 text-[#09f2c6] border-b-4 border-[#09f2c6] shadow-md shadow-cyan-500/20' : 'bg-white hover:bg-slate-200 text-slate-700 border-b-4 border-slate-300'}">
+                            ${iconContent}
+                        </button>
+                        <!-- 刪除子頁的小按鈕 (在行動端也能靈活使用) -->
+                        <button onclick="deleteCustomPage('${page.id}')" class="absolute -top-1.5 -right-1.5 bg-red-600 text-white rounded-full p-0.5 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200 shadow z-20 hover:scale-115">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // 刪除自訂子頁
+        function deleteCustomPage(pageId) {
+            if (confirm("是否移除這段同步記憶資料庫？所有寫入的選項將永遠抹除！")) {
+                state.customPages = state.customPages.filter(p => p.id !== pageId);
+                if (state.activeTab === pageId) {
+                    state.activeTab = 'music';
+                }
+                renderLeftTabs();
+                renderRightTabContents();
+                switchTab(state.activeTab);
+            }
+        }
+
+        // 2. 渲染右側所有自訂子頁的 DOM 容器
+        function renderRightTabContents() {
+            const container = document.getElementById('dynamic-tabs-container');
+            container.innerHTML = ''; // 清空
+
+            state.customPages.forEach((page, index) => {
+                const isHidden = state.activeTab === page.id ? '' : 'hidden';
+
+                const sectionDiv = document.createElement('div');
+                sectionDiv.id = `content-${page.id}`;
+                sectionDiv.className = `tab-content space-y-4 sm:space-y-6 ${isHidden}`;
+
+                // 構建其內部的 HTML
+                sectionDiv.innerHTML = `
+                    <!-- 頂部高科技橫幅 -->
+                    <div class="desync-bar text-white px-4 sm:px-6 py-3 sm:py-4 rounded-lg shadow-md flex justify-between items-center">
+                        <div>
+                            <h3 class="cinzel-font text-base sm:text-xl font-bold tracking-widest text-ellipsis overflow-hidden">MEMORY DATA SYNC</h3>
+                            <p class="text-[9px] sm:text-xs uppercase tracking-widest opacity-80 text-cyan-200">${page.title} - 自訂同步資料庫</p>
+                        </div>
+                        <span class="cinzel-font text-xl sm:text-2xl font-black text-white/40">${index === 0 ? "FOOD" : "SEC_0" + index}</span>
+                    </div>
+
+                    <!-- 抽卡展示主介面 -->
+                    <div class="animus-panel p-4 sm:p-6 rounded-lg relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-3 text-[9px] sm:text-xs font-mono text-slate-300 select-none">MEMORY D_INDEX_${index}</div>
+                        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-6 border-b border-slate-200 pb-2">
+                            <h4 class="cinzel-font text-xs sm:text-sm font-bold tracking-wider text-slate-700 flex items-center">
+                                <span class="inline-block w-2 h-2 bg-red-600 mr-2"></span> 記憶序列同步抽取
+                            </h4>
+                            
+                            <!-- 刺客抽卡折疊設定鈕 -->
+                            <button onclick="toggleConfigPanel('${page.id}')" class="animus-btn px-4 py-2 rounded-lg text-xs font-bold tracking-widest flex items-center justify-center space-x-1.5 w-full sm:w-auto">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+                                </svg>
+                                <span>編輯資料庫</span>
+                            </button>
+                        </div>
+
+                        <!-- 編輯面板 (預設隱藏) -->
+                        <div id="config-panel-${page.id}" class="hidden bg-slate-100 p-4 sm:p-5 rounded-lg border border-slate-200 mb-6 space-y-6">
+                            
+                            <!-- A. 類別管理 -->
+                            <div class="border-b border-slate-200 pb-4">
+                                <h5 class="text-xs uppercase tracking-wider font-bold text-slate-600 mb-2">類別（類群記憶）</h5>
+                                <div class="flex space-x-2 mb-3">
+                                    <input type="text" id="cat-input-${page.id}" placeholder="如：主食、中式、日式..." class="text-sm px-3 py-2 bg-white border border-slate-300 rounded focus:outline-none focus:ring-1 focus:ring-slate-700 flex-grow text-slate-700">
+                                    <button onclick="addCategoryToPage('${page.id}')" class="bg-slate-800 text-white text-xs px-3 sm:px-4 py-2 rounded font-bold hover:bg-slate-700 transition-colors">
+                                        新增類別
+                                    </button>
+                                </div>
+                                <div id="cat-list-${page.id}" class="flex flex-wrap gap-1.5">
+                                    <!-- 類別標籤清單 -->
+                                    ${renderCategoryBadges(page)}
+                                </div>
+                            </div>
+
+                            <!-- B. 新增選項 (多類別勾選) -->
+                            <div class="border-b border-slate-200 pb-4">
+                                <h5 class="text-xs uppercase tracking-wider font-bold text-slate-600 mb-2">新增同步目標（選項）</h5>
+                                <div class="space-y-3">
+                                    <input type="text" id="item-input-${page.id}" placeholder="輸入選項名稱（例如：托斯卡尼牛排、拉麵）" class="w-full text-sm px-3 py-2 bg-white border border-slate-300 rounded focus:outline-none focus:ring-1 focus:ring-slate-700 text-slate-700">
+                                    
+                                    <div>
+                                        <p class="text-[10px] text-slate-400 uppercase tracking-widest mb-1.5">將其附屬至一個或多個類別：</p>
+                                        <div id="item-cats-checkboxes-${page.id}" class="flex flex-wrap gap-3 bg-white p-3 rounded border border-slate-200">
+                                            ${renderCategoryCheckboxes(page)}
+                                        </div>
+                                    </div>
+
+                                    <button onclick="addItemToPage('${page.id}')" class="animus-btn w-full py-2.5 rounded text-xs font-bold tracking-widest">
+                                        + 新增此目標至資料庫
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- C. 項目總覽與刪除 -->
+                            <div>
+                                <h5 class="text-xs uppercase tracking-wider font-bold text-slate-600 mb-2">當前資料庫內容</h5>
+                                <div id="items-table-${page.id}" class="max-h-[220px] overflow-y-auto border border-slate-200 rounded-lg bg-white text-xs">
+                                    ${renderItemsTable(page)}
+                                </div>
+                            </div>
+                            
+                            <div class="text-center pt-2">
+                                <button onclick="toggleConfigPanel('${page.id}')" class="text-xs text-slate-500 hover:text-slate-800 transition-all font-bold">
+                                    ▲ 完成編輯，隱藏設定
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 2. 抽取功能操作區 -->
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
+                            
+                            <!-- 篩選器與同步 -->
+                            <div class="md:col-span-4 space-y-4">
+                                <div class="bg-slate-100 p-4 rounded-lg border border-slate-200">
+                                    <label class="block text-xs uppercase tracking-wider font-bold text-slate-600 mb-2">
+                                        選取要同步的類別：
+                                    </label>
+                                    <select id="draw-filter-${page.id}" class="w-full text-xs px-3 py-2.5 bg-white border border-slate-300 rounded focus:outline-none focus:ring-1 focus:ring-slate-800 font-bold text-slate-700">
+                                        <option value="ALL">全資料庫 [ALL SYNCHRONIZED]</option>
+                                        ${page.categories.map(c => `<option value="${c}">${c}</option>`).join('')}
+                                    </select>
+                                </div>
+
+                                <button onclick="drawFromCustomPage('${page.id}')" class="animus-btn w-full py-4 px-6 rounded-lg font-bold uppercase tracking-widest text-center flex flex-col items-center justify-center space-y-1">
+                                    <span class="text-sm">啟動高完整度同步</span>
+                                    <span class="text-[9px] text-[#09f2c6] opacity-80 tracking-widest">HIGH SYNCHRONIZATION</span>
+                                </button>
+                            </div>
+
+                            <!-- 抽卡顯示大螢幕 -->
+                            <div class="md:col-span-8 bg-slate-900 text-white rounded-lg p-5 flex flex-col items-center justify-center min-h-[140px] sm:min-h-[180px] relative border border-slate-700">
+                                <span class="text-xs text-[#09f2c6] absolute top-2 left-3 font-mono">ANIMUS DECISION ENGINE</span>
+                                <div id="draw-output-${page.id}" class="cinzel-font text-xl sm:text-2xl md:text-3xl font-bold tracking-widest text-slate-100 text-center px-4 leading-relaxed break-words max-w-full">
+                                    [ 等待同步指令 ]
+                                </div>
+                                <div id="draw-output-sub-${page.id}" class="text-[10px] text-slate-400 mt-2 tracking-wider text-center">
+                                    PRESS BUTTON TO DECRYPT GENETIC DATA
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                `;
+
+                container.appendChild(sectionDiv);
+            });
+        }
+
+        // ------------------ 各自訂子頁的操作細節 ------------------
+
+        // 切換編輯面板顯現/隱藏
+        function toggleConfigPanel(pageId) {
+            const panel = document.getElementById(`config-panel-${pageId}`);
+            if (panel) {
+                panel.classList.toggle('hidden');
+            }
+        }
+
+        // 新增類別
+        function addCategoryToPage(pageId) {
+            const page = state.customPages.find(p => p.id === pageId);
+            const input = document.getElementById(`cat-input-${pageId}`);
+            const categoryName = input.value.trim();
+
+            if (!categoryName) return;
+            if (page.categories.includes(categoryName)) {
+                alert("該類別已存在！");
+                return;
+            }
+
+            page.categories.push(categoryName);
+            input.value = '';
+
+            // 更新此子頁設定區 DOM
+            refreshPageConfigDOMs(page);
+        }
+
+        // 刪除類別
+        function deleteCategory(pageId, category) {
+            const page = state.customPages.find(p => p.id === pageId);
+            page.categories = page.categories.filter(c => c !== category);
+            
+            // 將原本勾選了該類別的項目的關聯性解除
+            page.items.forEach(item => {
+                item.categories = item.categories.filter(c => c !== category);
+            });
+
+            refreshPageConfigDOMs(page);
+        }
+
+        // 新增自訂選項 (帶有多選類別)
+        function addItemToPage(pageId) {
+            const page = state.customPages.find(p => p.id === pageId);
+            const input = document.getElementById(`item-input-${pageId}`);
+            const itemName = input.value.trim();
+
+            if (!itemName) {
+                alert("請填寫選項名稱！");
+                return;
+            }
+
+            // 尋找選了哪些類別
+            const checkedCategories = [];
+            page.categories.forEach(cat => {
+                const checkbox = document.getElementById(`chk-${pageId}-${cat}`);
+                if (checkbox && checkbox.checked) {
+                    checkedCategories.push(cat);
+                }
+            });
+
+            // 如果什麼類別都沒選，預設幫他加「一般」
+            if (checkedCategories.length === 0) {
+                if (!page.categories.includes('一般')) {
+                    page.categories.push('一般');
+                }
+                checkedCategories.push('一般');
+            }
+
+            page.items.push({
+                name: itemName,
+                categories: checkedCategories
+            });
+
+            input.value = ''; // 清除輸入
+
+            refreshPageConfigDOMs(page);
+        }
+
+        // 刪除自訂選項
+        function deleteItem(pageId, itemIndex) {
+            const page = state.customPages.find(p => p.id === pageId);
+            page.items.splice(itemIndex, 1);
+            refreshPageConfigDOMs(page);
+        }
+
+        // 重新渲染設定區的各種清單 (Badge, Checkboxes, Table, Select)
+        function refreshPageConfigDOMs(page) {
+            // A. 類別徽章
+            const catList = document.getElementById(`cat-list-${page.id}`);
+            if (catList) catList.innerHTML = renderCategoryBadges(page);
+
+            // B. 多選框
+            const chkBox = document.getElementById(`item-cats-checkboxes-${page.id}`);
+            if (chkBox) chkBox.innerHTML = renderCategoryCheckboxes(page);
+
+            // C. 項目清單
+            const table = document.getElementById(`items-table-${page.id}`);
+            if (table) table.innerHTML = renderItemsTable(page);
+
+            // D. 抽卡篩選器
+            const filterSelect = document.getElementById(`draw-filter-${page.id}`);
+            if (filterSelect) {
+                const curVal = filterSelect.value;
+                let optHtml = `<option value="ALL">全資料庫 [ALL SYNCHRONIZED]</option>`;
+                page.categories.forEach(c => {
+                    optHtml += `<option value="${c}" ${c === curVal ? 'selected' : ''}>${c}</option>`;
+                });
+                filterSelect.innerHTML = optHtml;
+            }
+        }
+
+        // 模板輔助函數：類別徽章渲染
+        function renderCategoryBadges(page) {
+            return page.categories.map(cat => `
+                <span class="inline-flex items-center text-xs bg-slate-200 text-slate-800 px-2 py-1 rounded font-bold font-mono">
+                    <span>${cat}</span>
+                    <button onclick="deleteCategory('${page.id}', '${cat}')" class="ml-1 text-red-600 hover:text-red-900 font-bold">×</button>
+                </span>
+            `).join('') || `<p class="text-[11px] text-slate-400 italic">暫無分類記憶</p>`;
+        }
+
+        // 模板輔助函數：類別核取方塊渲染
+        function renderCategoryCheckboxes(page) {
+            return page.categories.map(cat => `
+                <label class="inline-flex items-center space-x-1.5 text-xs text-slate-700 cursor-pointer">
+                    <input type="checkbox" id="chk-${page.id}-${cat}" class="rounded text-slate-900 focus:ring-slate-700">
+                    <span class="font-bold">${cat}</span>
+                </label>
+            `).join('') || `<p class="text-[11px] text-slate-400 italic">請先在上方新增類別</p>`;
+        }
+
+        // 模板輔助函數：項目表格
+        function renderItemsTable(page) {
+            if (page.items.length === 0) {
+                return `<div class="p-4 text-center text-slate-400 italic">尚無目標項目。請在上方建立。</div>`;
+            }
+
+            return `
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-100 text-slate-500 text-[10px] uppercase font-bold border-b border-slate-200">
+                            <th class="p-2">選項名稱</th>
+                            <th class="p-2">所屬類別</th>
+                            <th class="p-2 text-center w-12">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${page.items.map((item, index) => `
+                            <tr class="border-b border-slate-100 hover:bg-slate-50">
+                                <td class="p-2 font-bold text-slate-800 break-all">${item.name}</td>
+                                <td class="p-2">
+                                    <div class="flex flex-wrap gap-1">
+                                        ${item.categories.map(c => `<span class="bg-slate-100 text-slate-600 px-1 py-0.5 rounded text-[9px] font-bold font-mono">${c}</span>`).join('')}
+                                    </div>
+                                </td>
+                                <td class="p-2 text-center">
+                                    <button onclick="deleteItem('${page.id}', ${index})" class="text-red-600 hover:text-red-900 font-bold text-xs">刪除</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // 執行自訂子頁隨機抽取
+        function drawFromCustomPage(pageId) {
+            const page = state.customPages.find(p => p.id === pageId);
+            const filterSelect = document.getElementById(`draw-filter-${pageId}`);
+            const filterValue = filterSelect.value;
+
+            // 根據選定類別篩選
+            let pool = page.items;
+            if (filterValue !== 'ALL') {
+                pool = page.items.filter(item => item.categories.includes(filterValue));
+            }
+
+            const outputEl = document.getElementById(`draw-output-${pageId}`);
+            const outputSubEl = document.getElementById(`draw-output-sub-${pageId}`);
+
+            if (pool.length === 0) {
+                outputEl.textContent = "記憶崩潰";
+                outputSubEl.textContent = "SYNCHRONIZATION ERROR: 沒有符合該類別的同步目標！";
+                return;
+            }
+
+            outputEl.classList.add('decrypting');
+            outputSubEl.textContent = "ANALYZING TARGET DNA PATTERN...";
+
+            let duration = 900;
+            let interval = setInterval(() => {
+                const tempIndex = Math.floor(Math.random() * pool.length);
+                outputEl.textContent = pool[tempIndex].name;
+            }, 60);
+
+            setTimeout(() => {
+                clearInterval(interval);
+                outputEl.classList.remove('decrypting');
+
+                const finalIndex = Math.floor(Math.random() * pool.length);
+                const finalChoice = pool[finalIndex];
+                
+                outputEl.textContent = finalChoice.name;
+                outputSubEl.innerHTML = `
+                    <span class="text-[#09f2c6] font-bold">✓ 同步達成 100% </span> 
+                    | 類別: [${finalChoice.categories.join(', ')}]
+                `;
+            }, duration);
+        }
+
+    </script>
+
+</body>
+</html>
