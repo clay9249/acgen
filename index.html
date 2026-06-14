@@ -6,18 +6,21 @@
     <title>Animus 2.0</title>
     
     <!-- 1. 標準網頁 ICON (桌機瀏覽器) -->
-    <link rel="icon" type="image/png" href="https://www.freepnglogos.com/uploads/assassins-creed-logo-png/meaning-assassins-creed-logo-and-symbol-history-and-0.png">
+    <!-- 統一指向根目錄的 icon.png，未來更換圖標時只需覆蓋該實體檔案，不需修改代碼 -->
+    <link rel="icon" type="image/png" href="icon.png">
     
-    <!-- 2. iOS Safari "加入主畫面" 專用高解析度圖標 (180x180) -->
-    <link rel="apple-touch-icon" href="https://www.freepnglogos.com/uploads/assassins-creed-logo-png/meaning-assassins-creed-logo-and-symbol-history-and-0.png">
+    <!-- 2. iOS Safari "加入主畫面" 專用高解析度圖標 -->
+    <!-- 統一指向相同的 icon.png -->
+    <link rel="apple-touch-icon" href="icon.png">
     
-    <!-- 3. 行動端高整合度 Web Manifest (採用單一檔案 Data URI 技術，完美相容 Android/Chrome 安裝) -->
-    <link rel="manifest" href='data:application/manifest+json,{"name":"Animus 2.0","short_name":"Animus 2.0","description":"Subject 17 - Memory Synchronization System","start_url":".","display":"standalone","orientation":"portrait","background_color":"#eef3f7","theme_color":"#1e293b","icons":[{"src":"https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=192&auto=format&fit=crop","sizes":"192x192","type":"image/png"},{"src":"https://www.freepnglogos.com/uploads/assassins-creed-logo-png/meaning-assassins-creed-logo-and-symbol-history-and-0.png","sizes":"512x512","type":"image/png"}]}'>
+    <!-- 3. 指向實體的 PWA manifest.json 檔案 (解決手機安裝相容性問題) -->
+    <link rel="manifest" href="manifest.json">
 
-    <!-- 備用手機上方狀態列配色 -->
+    <!-- 手機上方狀態列與 PWA 顯示配色 -->
     <meta name="theme-color" content="#1e293b">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Animus 2.0">
     
     <!-- 引入 Tailwind CSS 進行現代化佈局 -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -204,7 +207,7 @@
                 </div>
             </div>
 
-            <!-- 刺客格言美學卡：修改響應式，在電腦大螢幕（lg）顯示 -->
+            <!-- 刺客格言美學卡 -->
             <div class="animus-panel p-4 rounded-lg hidden lg:block bg-gradient-to-br from-slate-900 to-slate-800 text-slate-300 border-l-4 border-red-700">
                 <p class="cinzel-font text-xs italic tracking-wider leading-relaxed">
                     "Nulla est veritas, licet omnia."
@@ -651,7 +654,7 @@
                             <!-- 刺客抽卡折疊設定鈕 -->
                             <button onclick="toggleConfigPanel('${page.id}')" class="animus-btn px-4 py-2 rounded-lg text-xs font-bold tracking-widest flex items-center justify-center space-x-1.5 w-full sm:w-auto">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4v2m0-6V4"></path>
                                 </svg>
                                 <span>編輯資料庫</span>
                             </button>

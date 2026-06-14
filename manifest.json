@@ -1,0 +1,23 @@
+{
+  "name": "Animus 2.0",
+  "short_name": "Animus 2.0",
+  "description": "Subject 17 - Memory Synchronization System",
+  "start_url": "./index.html",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eef3f7",
+  "theme_color": "#1e293b",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
