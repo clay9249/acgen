@@ -4,11 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Animus 2.0</title>
-    <!-- 
-      在此更換您的網頁 ICON (PNG格式)
-      只需將下面 href 的內容替換為您的圖片路徑即可
-    -->
+    
+    <!-- 1. 標準網頁 ICON (桌機瀏覽器) -->
     <link rel="icon" type="image/png" href="https://www.freepnglogos.com/uploads/assassins-creed-logo-png/meaning-assassins-creed-logo-and-symbol-history-and-0.png">
+    
+    <!-- 2. iOS Safari "加入主畫面" 專用高解析度圖標 (180x180) -->
+    <link rel="apple-touch-icon" href="https://www.freepnglogos.com/uploads/assassins-creed-logo-png/meaning-assassins-creed-logo-and-symbol-history-and-0.png">
+    
+    <!-- 3. 行動端高整合度 Web Manifest (採用單一檔案 Data URI 技術，完美相容 Android/Chrome 安裝) -->
+    <link rel="manifest" href='data:application/manifest+json,{"name":"Animus 2.0","short_name":"Animus 2.0","description":"Subject 17 - Memory Synchronization System","start_url":".","display":"standalone","orientation":"portrait","background_color":"#eef3f7","theme_color":"#1e293b","icons":[{"src":"https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=192&auto=format&fit=crop","sizes":"192x192","type":"image/png"},{"src":"https://www.freepnglogos.com/uploads/assassins-creed-logo-png/meaning-assassins-creed-logo-and-symbol-history-and-0.png","sizes":"512x512","type":"image/png"}]}'>
+
+    <!-- 備用手機上方狀態列配色 -->
+    <meta name="theme-color" content="#1e293b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     <!-- 引入 Tailwind CSS 進行現代化佈局 -->
     <script src="https://cdn.tailwindcss.com"></script>
