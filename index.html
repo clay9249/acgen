@@ -366,10 +366,33 @@
             romanNumerals: ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
         };
 
+        // Animus 記憶同步持久化 (LocalStorage)
+        function saveState() {
+            localStorage.setItem('animus_custom_pages', JSON.stringify(state.customPages));
+        }
+
+        function loadState() {
+            const saved = localStorage.getItem('animus_custom_pages');
+            if (saved) {
+                try {
+                    state.customPages = JSON.parse(saved);
+                    renderLeftTabs();
+                    renderRightTabContents();
+                } catch(e) {
+                    console.error("解密同步記憶失敗，載入預設區段", e);
+                    addDefaultCustomPage();
+                }
+            } else {
+                addDefaultCustomPage();
+            }
+        }
+
         // DOM 載入完畢初始化
         window.addEventListener('DOMContentLoaded', () => {
-            // 初始化內建的第二個子頁（用餐選擇，立即可用）
-            addDefaultCustomPage();
+            // 從 LocalStorage 載入持久化的記憶數據
+            loadState();
+            // 預設切換至音樂解碼器
+            switchTab('music');
         });
 
         // ------------------ 導覽切換系統 ------------------
@@ -510,17 +533,15 @@
             const initialPage = {
                 id: 'custom-' + Date.now(),
                 title: '佛羅倫斯餐飲選擇器', // 預設用餐頁面
-                categories: ['2點', '2半', '3點'],
+                categories: ['義式主食', '經典披薩', '文藝復興甜點', '佐餐特調'],
                 items: [
-                    { name: '大快活', categories: ['2點', '2半', '3點'] },
-                    { name: '大家樂', categories: ['2點', '2半', '3點'] },
-                    { name: '吉野家', categories: ['2點', '2半', '3點'] },
-                    { name: 'M記', categories: ['2點', '2半', '3點'] },
-                    { name: 'KFC', categories: ['2半', '3點'] },
-                    { name: '譚仔', categories: ['2半', '3點'] },
-                    { name: '譚仔三哥', categories: ['2半', '3點'] },
-                    { name: '米線陣', categories: ['2半', '3點'] },
-                    { name: '太興', categories: ['2半', '3點'] }
+                    { name: '托斯卡尼炭烤大牛排 (Bistecca)', categories: ['義式主食'] },
+                    { name: '瑪格麗特羅勒披薩 (Margherita)', categories: ['經典披薩'] },
+                    { name: '兄弟會祕製千層麵', categories: ['義式主食'] },
+                    { name: '西西里島起司捲 (Cannoli)', categories: ['文藝復興甜點'] },
+                    { name: '香草提拉米蘇 (Tiramisu)', categories: ['文藝復興甜點'] },
+                    { name: '文藝復興熱紅酒', categories: ['佐餐特調'] },
+                    { name: '阿諾河畔起司帕尼尼', categories: ['義式主食'] }
                 ]
             };
             registerNewTabInState(initialPage);
@@ -552,6 +573,7 @@
         // 將子頁加入系統並重新渲染 DOM 節點
         function registerNewTabInState(pageObj) {
             state.customPages.push(pageObj);
+            saveState(); // 持久化儲存
             
             // 1. 在左側清單中渲染按鈕
             renderLeftTabs();
@@ -613,6 +635,7 @@
         function deleteCustomPage(pageId) {
             if (confirm("是否移除這段同步記憶資料庫？所有寫入的選項將永遠抹除！")) {
                 state.customPages = state.customPages.filter(p => p.id !== pageId);
+                saveState(); // 持久化儲存
                 if (state.activeTab === pageId) {
                     state.activeTab = 'music';
                 }
@@ -778,6 +801,7 @@
             }
 
             page.categories.push(categoryName);
+            saveState(); // 持久化儲存
             input.value = '';
 
             // 更新此子頁設定區 DOM
@@ -794,6 +818,7 @@
                 item.categories = item.categories.filter(c => c !== category);
             });
 
+            saveState(); // 持久化儲存
             refreshPageConfigDOMs(page);
         }
 
@@ -830,6 +855,7 @@
                 categories: checkedCategories
             });
 
+            saveState(); // 持久化儲存
             input.value = ''; // 清除輸入
 
             refreshPageConfigDOMs(page);
@@ -839,6 +865,7 @@
         function deleteItem(pageId, itemIndex) {
             const page = state.customPages.find(p => p.id === pageId);
             page.items.splice(itemIndex, 1);
+            saveState(); // 持久化儲存
             refreshPageConfigDOMs(page);
         }
 
